@@ -84,9 +84,12 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
   }
 
   const genAI = getClient();
-  const candidates = ["gemini-1.5-flash", "gemini-1.5-flash-001", "gemini-1.5-pro", "gemini-1.0-pro"];
+  // Expanded candidates list to include all viable models
+  const candidates = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro", "gemini-1.0-pro"];
 
   let lastError: any = null;
+  let quotaError: any = null;
+  let authError: any = null;
 
   for (const modelName of candidates) {
     console.log(`Attempting search with model: ${modelName}`);
@@ -139,11 +142,22 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
       console.warn(`Model ${modelName} failed:`, error.message);
       lastError = error;
       const errString = error.message || error.toString();
-      if (errString.match(/API\s?Key/i)) throw error;
+
+      // Prioritize Auth and Quota errors over "Not Found"
+      if (errString.match(/API\s?Key/i) || errString.includes("400")) {
+        authError = error;
+        break; // Stop immediately on auth error
+      }
+      if (errString.includes("429") || errString.includes("quota") || errString.includes("resource_exhausted")) {
+        quotaError = error;
+      }
     }
   }
 
-  if (lastError) throw lastError;
+  // Rethrow the most significant error
+  if (authError) throw authError;
+  if (quotaError) throw quotaError;
+  if (lastError) throw lastError; // Likely 404, thrown only if NO quota error occurred
   throw new Error("All models failed.");
 };
 
