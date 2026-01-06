@@ -143,12 +143,16 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
     console.error("Dictionary Lookup Error:", error);
     let errorMessage = "Failed to search. Please try again.";
 
-    if (error.message?.includes("API Key")) {
-      errorMessage = "API Key is missing or invalid.";
-    } else if (error.message?.includes("quota")) {
-      errorMessage = "API Quota exceeded. Please try again later.";
-    } else if (error.message) {
-      errorMessage = `Error: ${error.message}`;
+    const errString = error.message || error.toString();
+
+    if (errString.match(/API\s?Key/i) || errString.includes("400")) {
+      errorMessage = "API Key가 잘못되었습니다. (Invalid API Key)";
+    } else if (errString.includes("quota") || errString.includes("429")) {
+      errorMessage = "하루 무료 사용량을 초과했습니다. (Quota Exceeded)";
+    } else if (errString.includes("not found") || errString.includes("404")) {
+      errorMessage = "모델을 찾을 수 없습니다. (Model Not Found)";
+    } else {
+      errorMessage = `오류가 발생했습니다: ${errString.substring(0, 100)}...`;
     }
 
     throw new Error(errorMessage);
