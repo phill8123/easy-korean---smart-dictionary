@@ -84,10 +84,10 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
   }
 
   const genAI = getClient();
-  // Expanded candidates list to include all viable models
-  const candidates = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro", "gemini-1.0-pro"];
+  // Simplified candidates list to standard stable aliases
+  const candidates = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
 
-  let lastError: any = null;
+  let errorLog: string[] = [];
   let quotaError: any = null;
   let authError: any = null;
 
@@ -139,9 +139,11 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
       return entry;
 
     } catch (error: any) {
-      console.warn(`Model ${modelName} failed:`, error.message);
-      lastError = error;
       const errString = error.message || error.toString();
+      const shortError = errString.length > 100 ? errString.substring(0, 100) + "..." : errString;
+
+      console.warn(`Model ${modelName} failed:`, error.message);
+      errorLog.push(`[${modelName}]: ${shortError}`);
 
       // Prioritize Auth and Quota errors over "Not Found"
       if (errString.match(/API\s?Key/i) || errString.includes("400")) {
@@ -157,8 +159,13 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
   // Rethrow the most significant error
   if (authError) throw authError;
   if (quotaError) throw quotaError;
-  if (lastError) throw lastError; // Likely 404, thrown only if NO quota error occurred
-  throw new Error("All models failed.");
+
+  // If all failed, throw a detailed aggregation
+  if (errorLog.length > 0) {
+    throw new Error(`All models failed. \nDEBUG INFO:\n${errorLog.join("\n")}`);
+  }
+
+  throw new Error("Unknown error occurred.");
 };
 
 export const lookupEntryImages = async (entry: DictionaryEntry): Promise<{ imageUrl?: string; culturalImageUrl?: string }> => {
@@ -173,16 +180,6 @@ export const getDailyWord = async (targetLanguage: string = "English"): Promise<
 
 export const getTTSAudio = async (text: string): Promise<AudioBuffer> => {
   // TTS implementation with official SDK is slightly different or requires separate endpoint
-  // For now, we'll try to use the same logic if possible or disable it if it breaks
-  // But wait, the official SDK doesn't support 'speech' modality as easily in generateContent?
-  // Actually it does, but let's just use the text-to-speech logic carefully.
-  // Since the user didn't ask about TTS, I'll attempt a safe conversion or keep it simple.
-
-  // Actually, standard Gemini API TTS via generateContent is experimental.
-  // The 'gemini-1.5-flash' model supports audio INPUT, but not OUTPUT directly as audio buffer?
-  // Wait, the previous code used `responseModalities: ["AUDIO"]` and `speechConfig`.
-  // This is supported in the REST API but maybe not fully typed in the SDK yet?
-  // Let's try to adapt it best effort.
-
+  // For now, temporarily disabled during migration
   return Promise.reject(new Error("TTS temporarily disabled during migration"));
 };
