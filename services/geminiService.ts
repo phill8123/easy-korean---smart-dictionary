@@ -117,12 +117,12 @@ export const lookupWord = async (query: string, targetLanguage: string = "Englis
     `;
 
     const textPromise = ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: dictionarySchema,
-        thinkingConfig: { thinkingBudget: 0 }, // Disable thinking for faster response
+        // thinkingConfig removed as it is not needed/supported for this model in this context
         systemInstruction: `You are a Korean tutor. Return JSON only. Explanations in ${targetLanguage}.`,
       },
     });

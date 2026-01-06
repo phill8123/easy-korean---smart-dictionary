@@ -461,10 +461,10 @@ const App: React.FC = () => {
       </nav>
 
       {/* Main Content - Centered vertically when no content */}
-      <main className={`relative z-10 flex-grow flex flex-col items-center px-4 sm:px-6 transition-all duration-700 ${!currentEntry && !isLoading ? 'justify-center pb-32' : 'justify-start pt-16 sm:pt-24 pb-12'}`}>
+      <main className={`relative z-10 flex-grow flex flex-col items-center px-4 sm:px-6 transition-all duration-700 ${!currentEntry && !isLoading && !error ? 'justify-center pb-32' : 'justify-start pt-16 sm:pt-24 pb-12'}`}>
 
         {/* Hero / Header Section */}
-        <div className={`text-center transition-all duration-700 ease-out max-w-4xl mx-auto ${currentEntry && !welcomeMode ? 'mb-8 opacity-90 scale-95' : 'mb-12'}`}>
+        <div className={`text-center transition-all duration-700 ease-out max-w-4xl mx-auto ${(currentEntry || error) && !welcomeMode ? 'mb-8 opacity-90 scale-95' : 'mb-12'}`}>
           {welcomeMode && (
             <div className="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Refined Badge */}
