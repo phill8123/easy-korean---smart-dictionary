@@ -526,7 +526,7 @@ const App: React.FC = () => {
         {/* State Displays */}
         <div className="w-full max-w-2xl mt-6">
           {error && (
-            <div className="absolute top-full mt-4 p-4 bg-red-100 text-red-800 rounded-2xl shadow-lg border border-red-200 animate-fade-in max-w-md text-center z-10 w-full backdrop-blur-md bg-opacity-90">
+            <div className="mt-6 p-4 bg-red-50 text-red-600 rounded-xl shadow-sm border border-red-100 animate-fade-in w-full text-center">
               <p className="font-semibold">{error}</p>
               <p className="text-sm mt-1 opacity-75">Please check API Key or try again.</p>
             </div>
