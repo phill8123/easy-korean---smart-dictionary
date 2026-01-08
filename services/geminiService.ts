@@ -17,6 +17,10 @@ const getClient = () => {
     console.error("API_KEY is missing. Please check your .env.local file and ensure VITE_API_KEY is set.");
     throw new Error("API Key is missing. Please configure VITE_API_KEY in your .env.local file.");
   }
+
+  // Debug log to verify key presence in production (masked)
+  console.log(`[GeminiService] Initializing with Key: ${apiKey.substring(0, 4)}... (Length: ${apiKey.length})`);
+
   return new GoogleGenerativeAI(apiKey);
 };
 
