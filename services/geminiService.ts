@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { SchemaType } from "@google/generative-ai";
 import { DictionaryEntry } from "../types";
 import { decodeBase64, decodeAudioData, getAudioContext } from "./audioUtils";
 
@@ -8,22 +8,6 @@ const IMAGE_CACHE = new Map<string, string>(); // In-memory cache for generated 
 const AUDIO_CACHE = new Map<string, AudioBuffer>(); // In-memory cache for TTS audio buffers
 
 // Helper to initialize the client safely
-const getClient = () => {
-  // FIX: Using import.meta.env for Vite instead of process.env
-  // @ts-ignore
-  const apiKey = import.meta.env.VITE_API_KEY || (process as any).env.API_KEY;
-
-  if (!apiKey) {
-    console.error("API_KEY is missing. Please check your .env.local file and ensure VITE_API_KEY is set.");
-    throw new Error("API Key is missing. Please configure VITE_API_KEY in your .env.local file.");
-  }
-
-  // Debug log to verify key presence in production (masked)
-  console.log(`[GeminiService] Initializing with Key: ${apiKey.substring(0, 4)}... (Length: ${apiKey.length})`);
-
-  return new GoogleGenerativeAI(apiKey);
-};
-
 const dictionarySchema = {
   type: SchemaType.OBJECT,
   properties: {
